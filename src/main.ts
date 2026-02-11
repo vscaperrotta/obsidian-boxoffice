@@ -1,12 +1,13 @@
 import { Plugin } from "obsidian";
 import { VIEW_TYPE } from "./constants";
 import CineVaultView from "./views/CineVaultView";
-import CineVaultSettingTab from "./settings/CineVaultSettingTab";
+import CineVaultSettingTab from "./settings/settingsTab";
 
 type CineVaultPluginData = {
 	localJsonPath?: string;
 	omdbApiKey?: string;
 	viewMode?: "grid" | "list";
+	libraryFolder?: string;
 	open?: boolean;
 };
 
@@ -14,6 +15,7 @@ export default class CineVaultPlugin extends Plugin {
 	localJsonPath: string | null = null;
 	omdbApiKey: string = "";
 	viewMode: "grid" | "list" = "grid";
+	libraryFolder: string = "cinevault-json";
 
 	// Initialize the plugin and set up event listeners
 	async onload() {
@@ -42,6 +44,7 @@ export default class CineVaultPlugin extends Plugin {
 		this.localJsonPath = data?.localJsonPath ?? null;
 		this.omdbApiKey = data?.omdbApiKey ?? "";
 		this.viewMode = data?.viewMode ?? "grid";
+		this.libraryFolder = data?.libraryFolder ?? "cinevault-json";
 	}
 
 	// externalJsonPath removed; no-op placeholder removed
@@ -59,7 +62,8 @@ export default class CineVaultPlugin extends Plugin {
 	private async savePluginData() {
 		const data: CineVaultPluginData = {
 			omdbApiKey: this.omdbApiKey,
-			viewMode: this.viewMode
+			viewMode: this.viewMode,
+			libraryFolder: this.libraryFolder
 		};
 		if (this.localJsonPath) {
 			data.localJsonPath = this.localJsonPath;
@@ -69,6 +73,11 @@ export default class CineVaultPlugin extends Plugin {
 
 	async setLocalJsonPath(path: string | null) {
 		this.localJsonPath = path;
+		await this.savePluginData();
+	}
+
+	async setLibraryFolder(folder: string) {
+		this.libraryFolder = folder;
 		await this.savePluginData();
 	}
 

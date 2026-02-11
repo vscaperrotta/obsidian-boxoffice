@@ -4,12 +4,13 @@ import type { CineVaultData, CineVaultMovie } from "../types/cinevault";
 const FOLDER = "cinevault-json";
 const DEFAULT_NAME = "cinevault.json";
 
-export function getDefaultPath() {
-  return `${FOLDER}/${DEFAULT_NAME}`;
+export function getDefaultPath(folder?: string) {
+  const folderPath = folder ?? FOLDER;
+  return `${folderPath}/${DEFAULT_NAME}`;
 }
 
-export function getFolder() {
-  return FOLDER;
+export function getFolder(folder?: string) {
+  return folder ?? FOLDER;
 }
 
 export function createEmptyMovie(): CineVaultMovie {
@@ -83,17 +84,19 @@ export function normalizeData(data: CineVaultData): CineVaultData {
   };
 }
 
-export async function ensureFolder(app: App) {
-  if (!app.vault.getAbstractFileByPath(FOLDER)) {
-    await app.vault.createFolder(FOLDER);
+export async function ensureFolder(app: App, folder?: string) {
+  const folderPath = getFolder(folder);
+  if (!app.vault.getAbstractFileByPath(folderPath)) {
+    await app.vault.createFolder(folderPath);
   }
 }
 
-export async function createJsonFile(app: App): Promise<TFile> {
-  await ensureFolder(app);
-  const existing = app.vault.getAbstractFileByPath(getDefaultPath());
+export async function createJsonFile(app: App, folder?: string): Promise<TFile> {
+  const folderPath = getFolder(folder);
+  await ensureFolder(app, folder);
+  const existing = app.vault.getAbstractFileByPath(getDefaultPath(folder));
   const filename = existing ? `cinevault-${Date.now()}.json` : DEFAULT_NAME;
-  const path = `${FOLDER}/${filename}`;
+  const path = `${folderPath}/${filename}`;
 
   return app.vault.create(path, JSON.stringify(createDefaultData(), null, 2));
 }

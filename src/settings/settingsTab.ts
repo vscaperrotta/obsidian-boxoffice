@@ -29,6 +29,17 @@ export default class CineVaultSettingTab extends PluginSettingTab {
           await this.plugin.setOmdbApiKey(value);
         }));
 
+    new Setting(containerEl)
+      .setName("Library folder")
+      .setDesc("The folder where CineVault will store library files")
+      .addText(text => text
+        .setPlaceholder("cinevault")
+        .setValue(this.plugin.libraryFolder)
+        .onChange(async (value) => {
+          const folder = value.trim() || "cinevault-json";
+          await this.plugin.setLibraryFolder(folder);
+        }));
+
     // External library support removed.
 
     new Setting(containerEl)
@@ -135,13 +146,13 @@ export default class CineVaultSettingTab extends PluginSettingTab {
     if (!confirmed) return;
 
     try {
-      const defaultFile = this.app.vault.getAbstractFileByPath(getDefaultPath());
+      const defaultFile = this.app.vault.getAbstractFileByPath(getDefaultPath(this.plugin.libraryFolder));
       let createdFile: TFile | undefined;
       if (defaultFile instanceof TFile) {
         await saveLocalData(this.app, defaultFile, createDefaultData());
         createdFile = defaultFile;
       } else {
-        createdFile = await createJsonFile(this.app);
+        createdFile = await createJsonFile(this.app, this.plugin.libraryFolder);
       }
 
       if (createdFile) {
@@ -166,12 +177,12 @@ export default class CineVaultSettingTab extends PluginSettingTab {
       }
     }
 
-    const defaultFile = this.app.vault.getAbstractFileByPath(getDefaultPath());
+    const defaultFile = this.app.vault.getAbstractFileByPath(getDefaultPath(this.plugin.libraryFolder));
     if (defaultFile instanceof TFile) {
       return this.app.vault.read(defaultFile);
     }
 
-    const folder = getFolder();
+    const folder = getFolder(this.plugin.libraryFolder);
     const fallback = this.app.vault
       .getFiles()
       .find((file) => file.extension === "json" && file.path.startsWith(`${folder}/`));

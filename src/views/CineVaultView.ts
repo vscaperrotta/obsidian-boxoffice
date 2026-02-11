@@ -3,8 +3,8 @@ import CineVaultPlugin from "../main";
 import { VIEW_TYPE } from "../constants";
 import type { CineVaultData, CineVaultMovie } from "../types/cinevault";
 import { renderOnboarding } from "../ui/onboarding";
-import { CineVaultMovieActionModal } from "../ui/modals/CineVaultMovieActionModal";
-import { CineVaultMovieDetailModal } from "../ui/modals/CineVaultMovieDetailModal";
+import { CineVaultMovieActionModal } from "../ui/modals/actionModal";
+import { CineVaultMovieDetailModal } from "../ui/modals/detailModal";
 import { JsonFileSuggestModal } from "../ui/JsonFileSuggestModal";
 import {
   createEmptyMovie,
@@ -67,7 +67,7 @@ export default class CineVaultView extends ItemView {
 
     if (!this.data) {
       renderOnboarding(container, async () => {
-        this.file = await createJsonFile(this.plugin.app);
+        this.file = await createJsonFile(this.plugin.app, this.plugin.libraryFolder);
         if (this.file) {
           await this.plugin.setLocalJsonPath(this.file.path);
         }
