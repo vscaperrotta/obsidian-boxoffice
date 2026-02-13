@@ -10,6 +10,19 @@ BoxOffice is an Obsidian plugin that turns your vault into a personal library fo
 - In-vault saving as a JSON file (default folder `BoxOffice/libraryStorage.json`).
 - Responsive UI with grid or list views and modals for details/actions.
 
+## Demo
+##### Features
+<p style="text-align: center;">
+    <img src="./assets/Screenshot1.png" width="400" />
+    <img src="./assets/Screenshot2.png" width="400" />
+    <img src="./assets/Screenshot4.png" width="400" />
+</p>
+
+##### Settings
+<p style="text-align: center;">
+    <img src="./assets/Screenshot3.png" width="400" />
+</p>
+
 ## Requirements
 
 - Node.js >= 22.16.0 (for development/build scripts)
