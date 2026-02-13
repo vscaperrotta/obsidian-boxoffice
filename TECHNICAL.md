@@ -1,17 +1,17 @@
-## Documentazione tecnica
+## Technical Documentation
 
-Questa documentazione descrive l'architettura e i componenti principali del plugin (codename: CineVault / BoxOffice).
+This document describes the architecture and key components of the plugin (codename: CineVault / BoxOffice).
 
-### Architettura
+### Architecture
 
-- **Plugin Core** (`src/main.ts`): gestione del lifecycle del plugin, caricamento impostazioni, registrazione della view e icon ribbon.
-- **View Layer** (`src/views/pluginView.ts`): UI principale, rendering della lista film, gestione modali e interazioni.
-- **Service Layer** (`src/services/*`): servizi per persistenza (`libraryStorage.ts`) e integrazione OMDb (`omdbService.ts`).
-- **Settings & UI Components**: tab impostazioni (`src/settings/settingsTab.ts`), modali e componenti riutilizzabili in `src/ui/`.
+- **Plugin Core** (`src/main.ts`): manages the plugin lifecycle, loads settings, and registers the view and ribbon icon.
+- **View Layer** (`src/views/pluginView.ts`): main UI, rendering the movie list, handling modals and interactions.
+- **Service Layer** (`src/services/*`): persistence service (`libraryStorage.ts`) and OMDb integration (`omdbService.ts`).
+- **Settings & UI Components**: the settings tab (`src/settings/settingsTab.ts`), modals, and reusable components in `src/ui/`.
 
-### Modello dati
+### Data Model
 
-Oggetto radice salvato in JSON (esempio semplificato):
+Root object saved as JSON (simplified example):
 
 ```ts
 interface CineVaultData {
@@ -36,77 +36,77 @@ interface CineVaultMovie {
   starRating: number;   // 0-5
   watched: boolean;
   notes?: string;
-  // altri campi OMDb quando disponibili
+  // other OMDb fields when available
 }
 ```
 
-Il file di default viene creato tramite `createDefaultData()` in `libraryStorage.ts` e normalizzato con `normalizeData()`.
+The default file is created via `createDefaultData()` in `libraryStorage.ts` and normalized with `normalizeData()`.
 
 ### `libraryStorage.ts`
 
-- Funzioni principali:
-  - `getDefaultPath(folder?)` — percorso predefinito `BoxOffice/libraryStorage.json`.
-  - `createJsonFile(app, folder?)` — crea il file di libreria nel vault; se esiste crea un file con suffisso timestamp.
-  - `loadLocalFile(app, file)` — legge e parsifica il JSON dal vault, valida la struttura e normalizza i movie.
-  - `saveLocalData(app, file, data)` — salva il JSON formattato nel vault.
-  - `ensureFolder(app, folder?)` — si assicura che la cartella esista nel vault.
+Main functions:
+  - `getDefaultPath(folder?)` — returns the default path `BoxOffice/libraryStorage.json`.
+  - `createJsonFile(app, folder?)` — creates the library file in the vault; if a file exists, creates a new one with a timestamp suffix.
+  - `loadLocalFile(app, file)` — reads and parses the JSON from the vault, validates the structure, and normalizes movies.
+  - `saveLocalData(app, file, data)` — saves formatted JSON back to the vault.
+  - `ensureFolder(app, folder?)` — ensures the folder exists in the vault.
 
-Queste funzioni usano l'API di Obsidian (`app.vault`) e lanciano errori chiari in caso di formato non valido.
+These functions use the Obsidian API (`app.vault`) and throw clear errors when the format is invalid.
 
 ### `omdbService.ts`
 
-- `searchOmdb(query, apiKey, type?, year?)` — esegue la chiamata a `https://www.omdbapi.com/?apikey={key}&s={query}` e ritorna una lista di risultati semplificati.
-- `getOmdbDetails(imdbId, apiKey)` — recupera i dettagli completi `?i={imdbId}&plot=full&tomatoes=true` e implementa una logica di retry (fino a 3 tentativi).
+- `searchOmdb(query, apiKey, type?, year?)` — calls `https://www.omdbapi.com/?apikey={key}&s={query}` and returns a simplified list of results.
+- `getOmdbDetails(imdbId, apiKey)` — retrieves full details using `?i={imdbId}&plot=full&tomatoes=true` and implements a retry logic (up to 3 attempts).
 
-Entrambe le funzioni ritornano `null` o array vuoti se manca la `apiKey` o in caso di errore.
+Both functions return `null` or empty arrays if the `apiKey` is missing or on error.
 
-### Impostazioni plugin
+### Plugin Settings
 
-I dati di configurazione del plugin sono salvati via `this.saveData()` di Obsidian (vedi `main.ts`). Le impostazioni note sono ad oggi:
+Plugin configuration is stored via Obsidian's `this.saveData()` (see `main.ts`). Known settings are:
 
 ```ts
 interface PluginSettings {
-  localJsonPath?: string | null; // percorso file JSON salvato nelle impostazioni (se impostato)
+  localJsonPath?: string | null; // path to the JSON file saved in settings (if set)
   omdbApiKey?: string;
   viewMode?: 'grid' | 'list';
-  libraryFolder?: string; // cartella nel vault dove salvare il JSON
+  libraryFolder?: string; // folder in the vault where the JSON is saved
 }
 ```
 
-Le impostazioni vengono caricate e salvate in `loadPluginData()` / `savePluginData()` in `main.ts`.
+Settings are loaded and saved in `loadPluginData()` / `savePluginData()` in `main.ts`.
 
 ### Styling
 
-Gli stili SCSS sono sotto `src/styles/` e compilati in `styles.css`. La convenzione di classi segue il prefisso `cinevault-`.
+SCSS styles live under `src/styles/` and are compiled to `styles.css`. Class names follow the `cinevault-` prefix convention.
 
-### Build e sviluppo
+### Build and Development
 
-- `npm run dev`: esegue `esbuild.config.mjs` in modalità watch e `sass --watch` per gli stili.
-- `npm run build`: esegue `tsc` per il controllo tipi e poi esbuild per la build di produzione; c'è anche uno step `prebuild` per compilare gli SCSS.
+- `npm run dev`: runs `esbuild.config.mjs` in watch mode and `sass --watch` for styles.
+- `npm run build`: runs `tsc` for type-checking and then esbuild for the production bundle; there is also a `prebuild` step to compile SCSS.
 
-File di configurazione rilevanti: `package.json`, `tsconfig.json`, `esbuild.config.mjs`.
+Relevant config files: `package.json`, `tsconfig.json`, `esbuild.config.mjs`.
 
-### Dipendenze
+### Dependencies
 
-- `obsidian` (API runtime)
-- `esbuild`, `typescript`, `sass` per lo sviluppo/build
-- `concurrently` usato negli script dev
+- `obsidian` (runtime API)
+- `esbuild`, `typescript`, `sass` for development/build
+- `concurrently` used in dev scripts
 
-Node.js 22+ è raccomandato per compatibilità con gli script e le API usate.
+Node.js 22+ is recommended for compatibility with the scripts and used APIs.
 
-### Note di integrazione OMDb
+### OMDb Integration Notes
 
-- Endpoint principali:
+- Main endpoints:
   - Search: `https://www.omdbapi.com/?apikey={key}&s={query}`
   - Details: `https://www.omdbapi.com/?apikey={key}&i={imdbId}&plot=full&tomatoes=true`
-- Il codice gestisce risposta non-True e stampa errori su console; la funzione `getOmdbDetails` ritenta fino a tre volte in caso di errore di rete.
+- The code handles non-True responses and logs errors to the console; `getOmdbDetails` retries up to three times on network errors.
 
-### Test e debugging
+### Testing and Debugging
 
-- Esegui `npm run dev` e apri Obsidian con la cartella del progetto nel vault per avere hot-reload.
-- Usa i log in console di Obsidian per debug di richieste OMDb e operazioni di I/O file.
+- Run `npm run dev` and open Obsidian with the project folder in the vault to enable hot-reload.
+- Use Obsidian console logs to debug OMDb requests and I/O operations.
 
-### Contribuire
+### Contributing
 
-- Apri PR piccole e mirate, mantieni coerenza TypeScript.
-- Aggiorna `TECHNICAL.md` quando modifichi il modello dati o i servizi di persistenza.
+- Open small, focused PRs and keep TypeScript consistency.
+- Update `TECHNICAL.md` when changing the data model or persistence services.

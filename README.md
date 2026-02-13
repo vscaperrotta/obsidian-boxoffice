@@ -1,91 +1,91 @@
 # BoxOffice — Obsidian Movie Library
 
-BoxOffice è un plugin per Obsidian che trasforma il tuo vault in una piccola libreria personale di film e serie TV. Permette di cercare dati da OMDb, salvare una libreria locale in formato JSON, e gestire watchlist e valutazioni direttamente dentro Obsidian.
+BoxOffice is an Obsidian plugin that turns your vault into a personal library for movies and TV shows. It allows searching data from OMDb, saving a local library as JSON, and managing watchlists and star ratings directly inside Obsidian.
 
-## Panoramica
+## Overview
 
-- Ricerca film/serie via OMDb e recupero dettagli (plot, poster, ratings).
-- Libreria locale con stato "da vedere" / "visto" e valutazioni personali a stelle.
-- Aggiunta/ rimozione veloce dei film con sincronizzazione dei metadati.
-- Salvataggio in-vault come file JSON (cartella predefinita `BoxOffice/libraryStorage.json`).
-- UI reattiva con vista a griglia o lista e modali per dettagli/azioni.
+- Search movies/series via OMDb and retrieve details (plot, poster, ratings).
+- Local library with "to watch" / "watched" states and personal star ratings.
+- Quick add/remove of items with metadata synchronization.
+- In-vault saving as a JSON file (default folder `BoxOffice/libraryStorage.json`).
+- Responsive UI with grid or list views and modals for details/actions.
 
-## Requisiti
+## Requirements
 
-- Node.js >= 22.16.0 (per gli script di sviluppo/build)
-- Obsidian minimo: 0.15.0
+- Node.js >= 22.16.0 (for development/build scripts)
+- Minimum Obsidian: 0.15.0
 
-## Installazione
+## Installation
 
-1. Scarica l'ultima release o copia i file compilati nella cartella del tuo vault: `.obsidian/plugins/boxoffice/` (il nome della cartella può variare, usa l'`id` del `manifest.json`).
-2. Ricarica Obsidian.
-3. Abilita il plugin in Impostazioni → Community Plugins.
+1. Download the latest release or copy the compiled files into your vault plugin folder: `.obsidian/plugins/boxoffice/` (folder name may vary; use the `id` from `manifest.json`).
+2. Reload Obsidian.
+3. Enable the plugin in Settings → Community Plugins.
 
-Nota: durante lo sviluppo usa la cartella del repository nel vault per avere hot-reload.
+Note: During development, use the repository folder inside your vault to enable hot-reload.
 
-## Sviluppo
+## Development
 
-Comandi principali (root del progetto):
+Main commands (project root):
 
 ```bash
 npm install
-npm run dev       # modalità sviluppo (esbuild + watch sass)
-npm run build     # build per produzione
+npm run dev       # development mode (esbuild + watch sass)
+npm run build     # production build
 ```
 
-Gli script e la configurazione di build si trovano in `package.json` ed `esbuild.config.mjs`.
+Build scripts and configuration are in `package.json` and `esbuild.config.mjs`.
 
-## Configurazione
+## Configuration
 
 ### OMDb API Key
 
-Per usare la ricerca e ottenere dettagli completi è necessario un API key OMDb:
+To use search and retrieve full details, an OMDb API key is required:
 
-1. Richiedi una chiave su https://www.omdbapi.com/apikey.aspx
-2. Apri Impostazioni → BoxOffice e incolla la tua chiave in `OMDb API Key`.
+1. Request a key at https://www.omdbapi.com/apikey.aspx
+2. Open Settings → BoxOffice and paste your key into the `OMDb API Key` field.
 
-Il plugin non richiede di inserire una chiave per funzioni locali (visualizzazione libreria), ma la ricerca OMDb non funzionerà senza key.
+The plugin does not require a key for local features (library viewing), but OMDb search will not work without one.
 
-### Cartella e file libreria
+### Library folder and file
 
-Per impostazione predefinita la libreria viene salvata nella cartella `BoxOffice` dentro il vault come `libraryStorage.json`. Puoi creare più file (vengono creati come `boxoffice-<timestamp>.json`) e il plugin offre funzioni per creare/caricare/salvare il JSON.
+By default the library is saved in a `BoxOffice` folder inside the vault as `libraryStorage.json`. You can create multiple files (generated as `boxoffice-<timestamp>.json`) and the plugin provides functions to create/load/save the JSON.
 
-## Uso rapido
+## Quick Start
 
-1. Clicca l'icona a forma di clapperboard nella ribbon di Obsidian per aprire la vista di BoxOffice.
-2. Cerca un titolo nella barra di ricerca.
-3. Clicca su un risultato per aprire il dettaglio, quindi usa le azioni per aggiungere, segnarlo come visto o votarlo.
+1. Click the clapperboard icon in the Obsidian ribbon to open the BoxOffice view.
+2. Search for a title using the search bar.
+3. Click a result to open details, then use actions to add it, mark as watched, or rate it.
 
-## Struttura del progetto (sintesi)
+## Project Structure (summary)
 
 ```
 src/
-├── main.ts                    # Entrypoint del plugin (lifecycle, settings, view)
-├── constants.ts               # Costanti condivise (es. VIEW_TYPE)
-├── CineVault.ts               # Logica principale / helper (se presente)
+├── main.ts                    # Plugin entrypoint (lifecycle, settings, view)
+├── constants.ts               # Shared constants (e.g. VIEW_TYPE)
+├── CineVault.ts               # Main logic / helpers (if present)
 ├── services/
-│   ├── libraryStorage.ts      # Funzioni per creazione/caricamento/salvataggio JSON
-│   └── omdbService.ts         # Wrapper per richieste OMDb (search, details)
+│   ├── libraryStorage.ts      # Functions for creating/loading/saving JSON
+│   └── omdbService.ts         # Wrapper for OMDb requests (search, details)
 ├── settings/
-│   └── settingsTab.ts         # UI tab delle impostazioni
-├── ui/                        # Componenti UI, modali, suggerimenti
+│   └── settingsTab.ts         # Settings UI tab
+├── ui/                        # UI components, modals, suggestions
 └── views/
-    └── pluginView.ts          # Vista principale dell'interfaccia
+    └── pluginView.ts          # Main view UI
 ```
 
-Per dettagli tecnici e modelli dati vedi `TECHNICAL.md`.
+For technical details and data models, see `TECHNICAL.md`.
 
-## Supporto, contributi e licenza
+## Support, Contributing and License
 
-- Contribuzioni benvenute: segui lo stile esistente e aggiorna i tipi TypeScript.
-- Bug e richieste: apri un issue nel repository.
-- Licenza: MIT — vedi il file `LICENSE`.
+- Contributions welcome: follow the existing style and update TypeScript types as needed.
+- Bugs and feature requests: open an issue in the repository.
+- License: MIT — see the `LICENSE` file.
 
 ---
 
-**Versione**: 1.0.0
+**Version**: 1.0.0
 **Minimum Obsidian Version**: 0.15.0
 
-**Autore**: Vittorio Scaperrotta — https://vittorioscaperrotta.me/
+**Author**: Vittorio Scaperrotta — https://vittorioscaperrotta.me/
 
-Se vuoi supportare lo sviluppo: https://ko-fi.com/vittorioscaperrotta
+If you want to support development: https://ko-fi.com/vittorioscaperrotta
