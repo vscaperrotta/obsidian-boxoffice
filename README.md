@@ -1,159 +1,91 @@
-# CineVault
-#### Obsidian Movie Library Plugin
+# BoxOffice — Obsidian Movie Library
 
-CineVault is a comprehensive Obsidian plugin that transforms your vault into a personal movie and TV series management system. It seamlessly integrates with the OMDb API to help you search, catalog, and organize your movie collection and watchlist directly within Obsidian.
+BoxOffice è un plugin per Obsidian che trasforma il tuo vault in una piccola libreria personale di film e serie TV. Permette di cercare dati da OMDb, salvare una libreria locale in formato JSON, e gestire watchlist e valutazioni direttamente dentro Obsidian.
 
-Note: CineVault depends on the OMDb API for search and detailed movie data. You must register at https://www.omdbapi.com/ and obtain an API key to use the search and details features.
+## Panoramica
 
-### Features
+- Ricerca film/serie via OMDb e recupero dettagli (plot, poster, ratings).
+- Libreria locale con stato "da vedere" / "visto" e valutazioni personali a stelle.
+- Aggiunta/ rimozione veloce dei film con sincronizzazione dei metadati.
+- Salvataggio in-vault come file JSON (cartella predefinita `BoxOffice/libraryStorage.json`).
+- UI reattiva con vista a griglia o lista e modali per dettagli/azioni.
 
-- Search movies/series via OMDb and fetch full details (plot, poster, ratings).
-- Maintain a local library with watch status and personal star ratings.
-- Fast add/remove movies from search results with full metadata sync.
-- Local or linked-vault JSON storage (works on mobile).
-- In-vault export of your library (creates timestamped JSON file inside the vault).
-- Clean, responsive UI with grid/list views and compact detail modals.
+## Requisiti
 
-### Demo
-https://github.com/user-attachments/assets/ce3c88a8-33aa-4486-84ed-3cfffb52b197
+- Node.js >= 22.16.0 (per gli script di sviluppo/build)
+- Obsidian minimo: 0.15.0
 
-### Screenshots
+## Installazione
 
-Application
-<p align="center">
-    <img src="./assets/Screenshot1.png" alt="Screenshot 1" width="300" />
-    <img src="./assets/Screenshot2.png" alt="Screenshot 2" width="300" />
-</p>
+1. Scarica l'ultima release o copia i file compilati nella cartella del tuo vault: `.obsidian/plugins/boxoffice/` (il nome della cartella può variare, usa l'`id` del `manifest.json`).
+2. Ricarica Obsidian.
+3. Abilita il plugin in Impostazioni → Community Plugins.
 
-Settings
-<p align="center">
-    <img src="./assets/Screenshot3.png" alt="Screenshot 3" width="300" />
-</p>
+Nota: durante lo sviluppo usa la cartella del repository nel vault per avere hot-reload.
 
-1. Download the latest release from the releases page
-2. Extract the files into your vault's `.obsidian/plugins/obsidian-cinevault/` directory
-3. Reload Obsidian
-4. Enable the plugin in Settings → Community Plugins
+## Sviluppo
 
-#### Development Setup
+Comandi principali (root del progetto):
 
 ```bash
-# Install dependencies
 npm install
-
-# Start development mode with hot reload
-npm run dev
-
-# Build for production
-npm run build
+npm run dev       # modalità sviluppo (esbuild + watch sass)
+npm run build     # build per produzione
 ```
 
-### Configuration
+Gli script e la configurazione di build si trovano in `package.json` ed `esbuild.config.mjs`.
 
-#### OMDb API Key
+## Configurazione
 
-To use the search functionality, you need an OMDb API key:
+### OMDb API Key
 
-1. Get an API key from [OMDb API](https://www.omdbapi.com/apikey.aspx)
-2. Open Obsidian Settings → CineVault
-3. Enter your API key in the "OMDb API Key" field
+Per usare la ricerca e ottenere dettagli completi è necessario un API key OMDb:
 
-The plugin includes a default demo API key for testing purposes, but it's recommended to use your own key for production use.
+1. Richiedi una chiave su https://www.omdbapi.com/apikey.aspx
+2. Apri Impostazioni → BoxOffice e incolla la tua chiave in `OMDb API Key`.
 
-#### Library Storage Options
+Il plugin non richiede di inserire una chiave per funzioni locali (visualizzazione libreria), ma la ricerca OMDb non funzionerà senza key.
 
-CineVault stores your library data within your vault:
+### Cartella e file libreria
 
-- **Local Storage**: Data is stored in your vault like `cinevault.json`
+Per impostazione predefinita la libreria viene salvata nella cartella `BoxOffice` dentro il vault come `libraryStorage.json`. Puoi creare più file (vengono creati come `boxoffice-<timestamp>.json`) e il plugin offre funzioni per creare/caricare/salvare il JSON.
 
-### Usage
+## Uso rapido
 
-#### Getting Started
+1. Clicca l'icona a forma di clapperboard nella ribbon di Obsidian per aprire la vista di BoxOffice.
+2. Cerca un titolo nella barra di ricerca.
+3. Clicca su un risultato per aprire il dettaglio, quindi usa le azioni per aggiungere, segnarlo come visto o votarlo.
 
-1. Click the clapperboard icon in the ribbon to open CineVault
-2. On first launch, choose to create a new library or connect an existing one
-3. Start searching for movies and building your collection!
-
-#### Adding Movies
-
-1. Type a movie title in the search bar
-2. Click on a search result to view details
-3. Choose "Segna come visto" (Mark as watched) or "Da vedere" (To watch)
-4. The movie will be added to your library with full details from OMDb
-
-#### Managing Your Library
-
-- **View Details**: Click on any movie card to see full information
-- **Rate Movies**: Use the star rating system in the detail modal
-- **Toggle Status**: Move movies between "To Watch" and "Watched" lists
-- **Remove Movies**: Delete movies from your library via the detail modal
-
-### Project Structure
+## Struttura del progetto (sintesi)
 
 ```
 src/
-├── main.ts                    # Plugin entry point and settings
-├── constants.ts               # Application constants
-├── utils.ts                   # Utility functions
-├── types/
-│   └── cinevault.ts          # TypeScript type definitions
+├── main.ts                    # Entrypoint del plugin (lifecycle, settings, view)
+├── constants.ts               # Costanti condivise (es. VIEW_TYPE)
+├── CineVault.ts               # Logica principale / helper (se presente)
 ├── services/
-│   ├── libraryStorage.ts     # Data persistence layer
-│   └── omdbService.ts        # OMDb API integration
-├── ui/
-│   ├── onboarding.ts         # First-time setup UI
-│   ├── starRating.ts         # Star rating component
-│   └── modals/
-│       ├── CineVaultMovieActionModal.ts  # Add movie modal
-│       └── CineVaultMovieDetailModal.ts  # Movie details modal
+│   ├── libraryStorage.ts      # Funzioni per creazione/caricamento/salvataggio JSON
+│   └── omdbService.ts         # Wrapper per richieste OMDb (search, details)
+├── settings/
+│   └── settingsTab.ts         # UI tab delle impostazioni
+├── ui/                        # Componenti UI, modali, suggerimenti
 └── views/
-    └── CineVaultView.ts      # Main plugin view
+    └── pluginView.ts          # Vista principale dell'interfaccia
 ```
 
-### Technical Documentation
+Per dettagli tecnici e modelli dati vedi `TECHNICAL.md`.
 
-Detailed technical documentation has been moved to [TECHNICAL.md](TECHNICAL.md).
-Please open that file for architecture details, data models, services, and build information.
+## Supporto, contributi e licenza
 
-### API Integration
-
-#### OMDb API
-
-The plugin integrates with the Open Movie Database (OMDb) API:
-
-- **Base URL**: `https://www.omdbapi.com/`
-- **Search Endpoint**: `?apikey={key}&s={query}`
-- **Details Endpoint**: `?apikey={key}&i={imdbId}&plot=full&tomatoes=true`
-
-### Contributing
-
-Contributions are welcome! Please ensure:
-
-1. Code follows the existing style and patterns
-2. TypeScript types are properly defined
-3. Changes are tested in development mode
-4. Documentation is updated accordingly
-
-### License
-
-MIT License - See [LICENSE](LICENSE) file for details
-
-### Author
-
-**Vittorio Scaperrotta**
-- Website: [vittorioscaperrotta.me](https://vittorioscaperrotta.me/)
-
-### Bugs and Issues
-
-For issues, feature requests, or questions, please open an issue on the project repository.
-
-### Support
-
-If you like this Plugin, consider donating to support continued development.
-
-<a href='https://ko-fi.com/vittorioscaperrotta' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+- Contribuzioni benvenute: segui lo stile esistente e aggiorna i tipi TypeScript.
+- Bug e richieste: apri un issue nel repository.
+- Licenza: MIT — vedi il file `LICENSE`.
 
 ---
 
-**Version**: 1.0.0
+**Versione**: 1.0.0
 **Minimum Obsidian Version**: 0.15.0
+
+**Autore**: Vittorio Scaperrotta — https://vittorioscaperrotta.me/
+
+Se vuoi supportare lo sviluppo: https://ko-fi.com/vittorioscaperrotta

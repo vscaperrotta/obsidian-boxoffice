@@ -1,100 +1,112 @@
-## Technical Documentation
+## Documentazione tecnica
 
-CineVault follows a modular architecture with clear separation of concerns:
+Questa documentazione descrive l'architettura e i componenti principali del plugin (codename: CineVault / BoxOffice).
 
-- **Plugin Core** (`main.ts`): Handles plugin lifecycle, settings, and view registration
-- **View Layer** (`CineVaultView.ts`): Manages the UI state and user interactions
-- **Service Layer**: Handles external dependencies (OMDb API, file system)
-- **UI Components**: Reusable components for modals and interactive elements
+### Architettura
 
-### Data Model
+- **Plugin Core** (`src/main.ts`): gestione del lifecycle del plugin, caricamento impostazioni, registrazione della view e icon ribbon.
+- **View Layer** (`src/views/pluginView.ts`): UI principale, rendering della lista film, gestione modali e interazioni.
+- **Service Layer** (`src/services/*`): servizi per persistenza (`libraryStorage.ts`) e integrazione OMDb (`omdbService.ts`).
+- **Settings & UI Components**: tab impostazioni (`src/settings/settingsTab.ts`), modali e componenti riutilizzabili in `src/ui/`.
 
-#### CineVaultData
-The root data structure stored in JSON format:
+### Modello dati
 
-```typescript
-{
-  schemaVersion: number;        // Data schema version
-  createdAt: string;           // ISO timestamp
-  updatedAt: string;           // ISO timestamp
-  libraryName: string;         // Library name
-  owner: string;               // Owner identifier
-  source: string;              // Data source identifier
-  movies: CineVaultMovie[];    // Array of movie entries
+Oggetto radice salvato in JSON (esempio semplificato):
+
+```ts
+interface CineVaultData {
+  schemaVersion: number;
+  createdAt: string;    // ISO timestamp
+  updatedAt: string;    // ISO timestamp
+  libraryName: string;
+  owner?: string;
+  source?: string;
+  movies: CineVaultMovie[];
+}
+
+interface CineVaultMovie {
+  id: string;           // uuid
+  imdbId: string;
+  title: string;
+  year: string;
+  poster?: string;
+  posterLocal?: string;
+  plot?: string;
+  ratings?: Array<{Source: string; Value: string}>;
+  starRating: number;   // 0-5
+  watched: boolean;
+  notes?: string;
+  // altri campi OMDb quando disponibili
 }
 ```
 
-#### CineVaultMovie
-Complete movie data structure with fields from OMDb and custom properties:
+Il file di default viene creato tramite `createDefaultData()` in `libraryStorage.ts` e normalizzato con `normalizeData()`.
 
-- **OMDb Fields**: title, year, rated, released, runtime, genre, director, writer, actors, plot, language, country, awards, poster, ratings, metascore, imdbRating, imdbVotes, type, etc.
-- **Custom Fields**:
-  - `id`: Unique UUID for each movie
-  - `starRating`: Personal rating (0-5)
-  - `watched`: Boolean status
-  - `notes`: User notes (reserved for future use)
+### `libraryStorage.ts`
 
-### Key Components
+- Funzioni principali:
+  - `getDefaultPath(folder?)` — percorso predefinito `BoxOffice/libraryStorage.json`.
+  - `createJsonFile(app, folder?)` — crea il file di libreria nel vault; se esiste crea un file con suffisso timestamp.
+  - `loadLocalFile(app, file)` — legge e parsifica il JSON dal vault, valida la struttura e normalizza i movie.
+  - `saveLocalData(app, file, data)` — salva il JSON formattato nel vault.
+  - `ensureFolder(app, folder?)` — si assicura che la cartella esista nel vault.
 
-#### CineVaultView
-The main view component that renders the plugin interface. Key responsibilities:
+Queste funzioni usano l'API di Obsidian (`app.vault`) e lanciano errori chiari in caso di formato non valido.
 
-- **Data Initialization**: Loads library from local or external storage
-- **Movie Rendering**: Displays movies in grid layout with "To Watch" and "Watched" sections
-- **Search Integration**: Debounced search with OMDb API
-- **Modal Management**: Opens detail and action modals
-- **State Persistence**: Saves changes back to storage
+### `omdbService.ts`
 
-#### Service: libraryStorage
-Manages data persistence with support for both vault-local and external files:
+- `searchOmdb(query, apiKey, type?, year?)` — esegue la chiamata a `https://www.omdbapi.com/?apikey={key}&s={query}` e ritorna una lista di risultati semplificati.
+- `getOmdbDetails(imdbId, apiKey)` — recupera i dettagli completi `?i={imdbId}&plot=full&tomatoes=true` e implementa una logica di retry (fino a 3 tentativi).
 
-- `createJsonFile()`: Creates new library file
-- `loadLocalFile()`: Loads data from vault
-- `loadExternalFile()`: Loads data from external path
-- `saveLocalData()` / `saveExternalData()`: Persists changes
-- `normalizeData()`: Ensures data consistency
+Entrambe le funzioni ritornano `null` o array vuoti se manca la `apiKey` o in caso di errore.
 
-#### Service: omdbService
-Handles OMDb API communication:
+### Impostazioni plugin
 
-- `searchOmdb()`: Searches for movies by title
-- `getOmdbDetails()`: Fetches complete movie details by IMDb ID
-- Includes retry logic and error handling
+I dati di configurazione del plugin sono salvati via `this.saveData()` di Obsidian (vedi `main.ts`). Le impostazioni note sono ad oggi:
 
-### Plugin Settings
-
-Settings are persisted using Obsidian's data API:
-
-```typescript
-{
-  externalJsonPath?: string;   // Path to external JSON (if used)
-  omdbApiKey?: string;         // OMDb API key
+```ts
+interface PluginSettings {
+  localJsonPath?: string | null; // percorso file JSON salvato nelle impostazioni (se impostato)
+  omdbApiKey?: string;
+  viewMode?: 'grid' | 'list';
+  libraryFolder?: string; // cartella nel vault dove salvare il JSON
 }
 ```
+
+Le impostazioni vengono caricate e salvate in `loadPluginData()` / `savePluginData()` in `main.ts`.
 
 ### Styling
 
-Custom CSS classes follow the `cinevault-*` naming convention:
+Gli stili SCSS sono sotto `src/styles/` e compilati in `styles.css`. La convenzione di classi segue il prefisso `cinevault-`.
 
-- `.cinevault-header`: Main header section
-- `.cinevault-movie-grid`: Movie card grid layout
-- `.cinevault-movie-card`: Individual movie card
-- `.cinevault-modal-*`: Modal-specific styles
+### Build e sviluppo
 
-All styles are defined in `styles.css` and follow Obsidian's theming patterns.
+- `npm run dev`: esegue `esbuild.config.mjs` in modalità watch e `sass --watch` per gli stili.
+- `npm run build`: esegue `tsc` per il controllo tipi e poi esbuild per la build di produzione; c'è anche uno step `prebuild` per compilare gli SCSS.
 
-### Build System
+File di configurazione rilevanti: `package.json`, `tsconfig.json`, `esbuild.config.mjs`.
 
-The plugin uses esbuild for bundling:
+### Dipendenze
 
-- **Development**: `npm run dev` - Watch mode with auto-rebuild
-- **Production**: `npm run build` - Optimized build with type checking
-- Configuration: `esbuild.config.mjs`
-- TypeScript config: `tsconfig.json`
+- `obsidian` (API runtime)
+- `esbuild`, `typescript`, `sass` per lo sviluppo/build
+- `concurrently` usato negli script dev
 
-### Dependencies
+Node.js 22+ è raccomandato per compatibilità con gli script e le API usate.
 
-- **obsidian**: Core Obsidian API
-- **TypeScript**: Type safety and modern JavaScript features
-- **esbuild**: Fast bundling and compilation
-- Node.js 22.16.0 or higher
+### Note di integrazione OMDb
+
+- Endpoint principali:
+  - Search: `https://www.omdbapi.com/?apikey={key}&s={query}`
+  - Details: `https://www.omdbapi.com/?apikey={key}&i={imdbId}&plot=full&tomatoes=true`
+- Il codice gestisce risposta non-True e stampa errori su console; la funzione `getOmdbDetails` ritenta fino a tre volte in caso di errore di rete.
+
+### Test e debugging
+
+- Esegui `npm run dev` e apri Obsidian con la cartella del progetto nel vault per avere hot-reload.
+- Usa i log in console di Obsidian per debug di richieste OMDb e operazioni di I/O file.
+
+### Contribuire
+
+- Apri PR piccole e mirate, mantieni coerenza TypeScript.
+- Aggiorna `TECHNICAL.md` quando modifichi il modello dati o i servizi di persistenza.

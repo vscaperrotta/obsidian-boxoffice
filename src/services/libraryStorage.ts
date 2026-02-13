@@ -1,8 +1,8 @@
 import { App, TFile } from "obsidian";
 import type { CineVaultData, CineVaultMovie } from "../types/cinevault";
 
-const FOLDER = "cinevault-json";
-const DEFAULT_NAME = "cinevault.json";
+const FOLDER = "BoxOffice";
+const DEFAULT_NAME = "libraryStorage.json";
 
 export function getDefaultPath(folder?: string) {
   const folderPath = folder ?? FOLDER;
@@ -95,7 +95,7 @@ export async function createJsonFile(app: App, folder?: string): Promise<TFile> 
   const folderPath = getFolder(folder);
   await ensureFolder(app, folder);
   const existing = app.vault.getAbstractFileByPath(getDefaultPath(folder));
-  const filename = existing ? `cinevault-${Date.now()}.json` : DEFAULT_NAME;
+  const filename = existing ? `boxoffice-${Date.now()}.json` : DEFAULT_NAME;
   const path = `${folderPath}/${filename}`;
 
   return app.vault.create(path, JSON.stringify(createDefaultData(), null, 2));

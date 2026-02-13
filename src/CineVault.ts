@@ -1,1 +1,1 @@
-export { default } from "./views/CineVaultView";
+export { default } from "./views/pluginView";

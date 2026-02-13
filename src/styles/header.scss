@@ -1,0 +1,16 @@
+.cinevault-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 auto;
+  width: 100%;
+
+  .cinevault-title {
+    font-weight: 700;
+  }
+
+  .cinevault-header-text {
+    color: var(--text-muted);
+    white-space: pre-wrap;
+  }
+}

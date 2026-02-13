@@ -1,13 +1,19 @@
 import { requestUrl } from "obsidian";
 import type { CineVaultSearchItem, OmdbDetailedResponse } from "../types/cinevault";
 
-export async function searchOmdb(query: string, apiKey: string): Promise<CineVaultSearchItem[]> {
+export async function searchOmdb(query: string, apiKey: string, type?: string, year?: string): Promise<CineVaultSearchItem[]> {
   if (!apiKey) {
     return [];
   }
 
   try {
-    const url = `https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(query)}`;
+    let url = `https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(query)}`;
+    if (type) {
+      url += `&type=${encodeURIComponent(type)}`;
+    }
+    if (year) {
+      url += `&y=${encodeURIComponent(year)}`;
+    }
     const response = await requestUrl(url);
     const data = response.json as {
       Search?: Array<{ Title: string; Year: string; imdbID: string; Type: string; Poster: string }>;

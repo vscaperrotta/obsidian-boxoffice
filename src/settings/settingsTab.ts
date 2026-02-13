@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting, Notice, TFile } from "obsidian";
-import CineVaultView from "../views/CineVaultView";
+import pluginView from "../views/pluginView";
 import { VIEW_TYPE } from "../constants";
 import CineVaultPlugin from "../main";
 import { createDefaultData, createJsonFile, getDefaultPath, getFolder, saveLocalData } from "../services/libraryStorage";
@@ -31,12 +31,12 @@ export default class CineVaultSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Library folder")
-      .setDesc("The folder where CineVault will store library files")
+      .setDesc("The folder where the plugin will store library files")
       .addText(text => text
-        .setPlaceholder("cinevault")
+        .setPlaceholder("Folder name")
         .setValue(this.plugin.libraryFolder)
         .onChange(async (value) => {
-          const folder = value.trim() || "cinevault-json";
+          const folder = value.trim() || "BoxOffice";
           await this.plugin.setLibraryFolder(folder);
         }));
 
@@ -91,7 +91,7 @@ export default class CineVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl).setName("Bugfix").setHeading();
     new Setting(containerEl)
       .setName("Report issues")
-      .setDesc("If you encounter any issues with the plugin, please report them. Your feedback is invaluable for improving CineVault!")
+      .setDesc("If you encounter any issues with the plugin, please report them. Your feedback is invaluable for improving BoxOffice!")
       .addButton(button => button
         .setButtonText("GitHub")
         .onClick(() => {
@@ -121,27 +121,27 @@ export default class CineVaultSettingTab extends PluginSettingTab {
 
       // Create export file inside vault for mobile compatibility
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-      const exportPath = `cinevault-export-${timestamp}.json`;
+      const exportPath = `boxoffice-export-${timestamp}.json`;
 
       // Check if file exists, if so add a counter
       let finalPath = exportPath;
       let counter = 1;
       while (this.app.vault.getAbstractFileByPath(finalPath)) {
-        finalPath = `cinevault-export-${timestamp}-${counter}.json`;
+        finalPath = `boxoffice-export-${timestamp}-${counter}.json`;
         counter++;
       }
 
       await this.app.vault.create(finalPath, content);
       new Notice(`Library exported to ${finalPath}`);
     } catch (error) {
-      console.error("[CineVault] Export library error", error);
+      console.error("[BoxOffice] Export library error", error);
       new Notice("Unable to export the library.");
     }
   }
 
   private async createNewLibrary() {
     const confirmed = window.confirm(
-      "Create a new empty CineVault library? This will unlink any external library and reset your local library data."
+      "Create a new empty BoxOffice library? This will unlink any external library and reset your local library data."
     );
     if (!confirmed) return;
 
@@ -162,7 +162,7 @@ export default class CineVaultSettingTab extends PluginSettingTab {
       this.display();
       new Notice("New library created.");
     } catch (error) {
-      console.error("[CineVault] Create new library error", error);
+      console.error("[BoxOffice] Create new library error", error);
       new Notice("Unable to create a new library.");
     }
   }
@@ -197,7 +197,7 @@ export default class CineVaultSettingTab extends PluginSettingTab {
   private async refreshOpenViews() {
     const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE);
     for (const leaf of leaves) {
-      if (leaf.view instanceof CineVaultView) {
+      if (leaf.view instanceof pluginView) {
         await leaf.view.onOpen();
       }
     }

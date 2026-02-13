@@ -1,6 +1,6 @@
 import { Plugin } from "obsidian";
 import { VIEW_TYPE } from "./constants";
-import CineVaultView from "./views/CineVaultView";
+import pluginView from "./views/pluginView";
 import CineVaultSettingTab from "./settings/settingsTab";
 
 type CineVaultPluginData = {
@@ -15,7 +15,7 @@ export default class CineVaultPlugin extends Plugin {
 	localJsonPath: string | null = null;
 	omdbApiKey: string = "";
 	viewMode: "grid" | "list" = "grid";
-	libraryFolder: string = "cinevault-json";
+	libraryFolder: string = "BoxOffice";
 
 	// Initialize the plugin and set up event listeners
 	async onload() {
@@ -27,10 +27,10 @@ export default class CineVaultPlugin extends Plugin {
 		// Register new view
 		this.registerView(
 			VIEW_TYPE,
-			(leaf) => new CineVaultView(leaf, this)
+			(leaf) => new pluginView(leaf, this)
 		);
 
-		this.addRibbonIcon("clapperboard", "CineVault", async () => {
+		this.addRibbonIcon("clapperboard", "BoxOffice", async () => {
 			await this.openNewTab();
 		});
 	}
@@ -44,7 +44,7 @@ export default class CineVaultPlugin extends Plugin {
 		this.localJsonPath = data?.localJsonPath ?? null;
 		this.omdbApiKey = data?.omdbApiKey ?? "";
 		this.viewMode = data?.viewMode ?? "grid";
-		this.libraryFolder = data?.libraryFolder ?? "cinevault-json";
+		this.libraryFolder = data?.libraryFolder ?? "BoxOffice";
 	}
 
 	// externalJsonPath removed; no-op placeholder removed
@@ -81,7 +81,7 @@ export default class CineVaultPlugin extends Plugin {
 		await this.savePluginData();
 	}
 
-	// Open a new tab with the "CineVault" view type
+	// Open a new tab with the "BoxOffice" view type
 	private async openNewTab() {
 		const existingLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE);
 		if (existingLeaves.length > 0) {

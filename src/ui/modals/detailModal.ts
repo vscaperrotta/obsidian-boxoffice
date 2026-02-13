@@ -1,7 +1,7 @@
 import { Modal } from "obsidian";
 import type { CineVaultMovie } from "../../types/cinevault";
 import { createStarRating } from "../starRating";
-import { nullSafe } from "src/utils";
+import { nullSafe, renderExternalRatingBar } from "src/utils/globalMethods";
 
 export class CineVaultMovieDetailModal extends Modal {
   private movie: CineVaultMovie;
@@ -28,38 +28,55 @@ export class CineVaultMovieDetailModal extends Modal {
     contentEl.empty();
 
     const modalContainer = contentEl.createDiv({
-      cls: "cinevault-modal-container"
+      cls: "cinevault-modal-detail-container"
     });
 
-    modalContainer.createEl("h1", {
+    const modalHeader = modalContainer.createDiv({
+      cls: "cinevault-modal-detail-header"
+    });
+
+    const modalTitleContainer = modalHeader.createDiv({
+      cls: "cinevault-modal-detail-title-container"
+    });
+
+    modalTitleContainer.createEl("h1", {
       text: this.movie.title,
-      cls: "cinevault-modal-title"
+      cls: "cinevault-modal-detail-title"
     });
 
     // Year and Type
     const type = nullSafe(() => this.movie.type[0].toUpperCase() + this.movie.type.slice(1), null);
     const year = nullSafe(() => this.movie.year, null);
-    modalContainer.createEl("p", {
+
+    modalTitleContainer.createEl("p", {
       text: `${year} - ${type}`,
+    });
+
+    modalTitleContainer.createEl("p", {
+      text: "Directed by " + nullSafe(() => this.movie.director, "N/A"),
+    });
+
+    modalTitleContainer.createEl("p", {
+      text: "Duration " + nullSafe(() => this.movie.runtime, "N/A"),
     });
 
     // Poster
     if (this.movie.poster) {
-      modalContainer.createEl("img", { cls: "cinevault-modal-poster" }).setAttribute("src", this.movie.poster);
+      modalHeader.createEl("img", { cls: "cinevault-modal-detail-poster" }).setAttribute("src", this.movie.poster);
     }
 
     // Plot
     if (this.movie.plot) {
-      const plotContainer = modalContainer.createEl("div", { cls: "cinevault-modal-plot-container" });
+      const plotContainer = modalContainer.createEl("div", { cls: "cinevault-modal-detail-plot-container" });
 
       const plotEl = plotContainer.createEl("p", {
         text: this.movie.plot,
-        cls: "cinevault-modal-plot"
+        cls: "cinevault-modal-detail-plot"
       });
 
       const showMoreButton = plotContainer.createEl("button", {
         text: "Show more",
-        cls: "cinevault-modal-show-more cinevault-modal-show-more-hidden"
+        cls: "cinevault-modal-detail-show-more cinevault-modal-detail-show-more-hidden"
       })
 
       showMoreButton.addEventListener("click", () => {
@@ -71,21 +88,21 @@ export class CineVaultMovieDetailModal extends Modal {
       requestAnimationFrame(() => {
         // If content height exceeds container height, it's truncated
         if (plotEl.scrollHeight > plotEl.clientHeight + 1) {
-          showMoreButton.removeClass("cinevault-modal-show-more-hidden");
+          showMoreButton.removeClass("cinevault-modal-detail-show-more-hidden");
         }
       });
     }
 
     // Generate details section only if at least one detail is available
     function rederDetailSection(type: string, value: string) {
-      const detailElement = modalContainer.createEl("div", { cls: "cinevault-modal-detail-container" });
+      const detailElement = modalContainer.createEl("div", { cls: "cinevault-modal-detail-detail-container" });
       detailElement.createEl("p", {
         text: `${type}:`,
-        cls: "cinevault-modal-detail-label"
+        cls: "cinevault-modal-detail-detail-label"
       });
       detailElement.createEl("p", {
         text: value,
-        cls: "cinevault-modal-detail-value"
+        cls: "cinevault-modal-detail-detail-value"
       });
     }
 
@@ -96,11 +113,6 @@ export class CineVaultMovieDetailModal extends Modal {
       rederDetailSection("Genre", this.movie.genre);
     }
 
-    // Director
-    if (this.movie.director) {
-      rederDetailSection("Director", this.movie.director);
-    }
-
     // Actors
     if (this.movie.actors) {
       rederDetailSection("Actors", this.movie.actors);
@@ -108,31 +120,36 @@ export class CineVaultMovieDetailModal extends Modal {
 
     modalContainer.createEl("hr");
 
+    const ratingWrapper = modalContainer.createDiv({ cls: "cinevault-modal-detail-rating-wrapper" });
+
     // Personal Rating
-    const ratingContainer = modalContainer.createDiv({
-      cls: "cinevault-modal-rating-container"
+    const ratingContainer = ratingWrapper.createDiv({
+      cls: "cinevault-modal-detail-rating-container"
     });
 
-    ratingContainer.createEl("div", { text: "Rating", cls: "cinevault-modal-rating-label" });
-    const stars = createStarRating(ratingContainer, this.movie.starRating, false, (rating) => {
+    ratingContainer.createEl("div", { text: "Rating", cls: "cinevault-modal-detail-rating-label" });
+    createStarRating(ratingContainer, this.movie.starRating, false, (rating) => {
       this.onRate(rating);
     });
-    stars.classList.add("cinevault-modal-stars");
 
-    // Ratings from external sources
     if (this.movie.ratings) {
-      const externalRatingsContainer = modalContainer.createDiv({
-        cls: "cinevault-modal-external-ratings"
+      const externalRatingsContainer = ratingWrapper.createDiv({ cls: "cinevault-modal-detail-rating-container" });
+
+      externalRatingsContainer.createEl("div", {
+        text: "External rating",
+        cls: "cinevault-modal-detail-rating-label"
       });
 
-      for (const rating of this.movie.ratings) {
-        const ratingEl = externalRatingsContainer.createDiv({ cls: "cinevault-modal-external-rating-element" });
-        ratingEl.createEl("div", { text: rating.Source, cls: "cinevault-modal-external-rating-source" });
-        ratingEl.createEl("div", { text: rating.Value, cls: "cinevault-modal-external-rating-value" });
-      }
+      renderExternalRatingBar(externalRatingsContainer, this.movie.ratings);
+
+      // External rating disclaimer stays in the modal
+      modalContainer.createEl("p", {
+        text: "The external rating is an average based on votes from Internet Movie Database, Rotten Tomatoes and Metacritic",
+        cls: "cinevault-modal-detail-rating-disclaimer"
+      });
     }
 
-    const actions = modalContainer.createDiv({ cls: "cinevault-modal-actions" });
+    const actions = modalContainer.createDiv({ cls: "cinevault-modal-detail-actions" });
     const toggleWatchedLabel = this.movie.watched ? "Mark as to watch" : "Mark as watched";
     const toggleWatchedButton = actions.createEl("button", { text: toggleWatchedLabel });
     const removeButton = actions.createEl("button", { text: "Remove", cls: "cinevault-danger" });
