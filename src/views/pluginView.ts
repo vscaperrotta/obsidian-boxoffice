@@ -87,8 +87,10 @@ export default class CineVaultView extends ItemView {
     // Search area
     const searchBox = container.createDiv({ cls: "cinevault-search" });
 
+    const searchInputsGroup = searchBox.createDiv({ cls: "cinevault-search-inputs-group" });
+
     // Search title
-    const searchInputContainer = searchBox.createDiv({ cls: "cinevault-search-input-container" });
+    const searchInputContainer = searchInputsGroup.createDiv({ cls: "cinevault-search-input-container" });
     const searchInput = searchInputContainer.createEl("input", {
       cls: "cinevault-search-input",
       attr: {
@@ -106,7 +108,7 @@ export default class CineVaultView extends ItemView {
 
     setIcon(filterSwitch, "sliders-horizontal");
 
-    const moreFilterContainer = searchBox.createDiv({ cls: "cinevault-more-filter" });
+    const moreFilterContainer = searchInputsGroup.createDiv({ cls: "cinevault-more-filter" });
 
     moreFilterContainer.style.display = "none";
 

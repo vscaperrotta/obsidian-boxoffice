@@ -96,7 +96,7 @@ For technical details and data models, see `TECHNICAL.md`.
 
 ---
 
-**Version**: 1.0.0
+**Version**: 1.0.1
 **Minimum Obsidian Version**: 0.15.0
 
 **Author**: Vittorio Scaperrotta — https://vittorioscaperrotta.me/

@@ -109,16 +109,21 @@
 }
 
 .cinevault-search {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  width: 100%;
+}
+
+.cinevault-search-inputs-group {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
   gap: 12px;
-  position: relative;
-  max-width: 80%;
   width: 100%;
 
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
-    max-width: 100%;
   }
 }
 

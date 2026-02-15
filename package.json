@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-cinevault",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "An Obsidian plugin to manage your movie collection and watchlist directly in your vault.",
 	"author": "Vittorio Scaperrotta",
 	"main": "main.js",
