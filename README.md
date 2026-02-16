@@ -26,7 +26,6 @@ BoxOffice is an Obsidian plugin that turns your vault into a personal library fo
 ## Requirements
 
 - Node.js >= 22.16.0 (for development/build scripts)
-- Minimum Obsidian: 0.15.0
 
 ## Installation
 
