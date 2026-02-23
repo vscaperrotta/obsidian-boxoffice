@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting, Notice, TFile } from "obsidian";
-import pluginView from "../views/pluginView";
+import PluginView from "../views/PluginView";
 import { VIEW_TYPE } from "../constants";
 import CineVaultPlugin from "../main";
 import { createDefaultData, createJsonFile, getDefaultPath, getFolder, saveLocalData } from "../services/libraryStorage";
@@ -197,7 +197,7 @@ export default class CineVaultSettingTab extends PluginSettingTab {
   private async refreshOpenViews() {
     const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE);
     for (const leaf of leaves) {
-      if (leaf.view instanceof pluginView) {
+      if (leaf.view instanceof PluginView) {
         await leaf.view.onOpen();
       }
     }

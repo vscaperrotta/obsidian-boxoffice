@@ -1,6 +1,6 @@
 import { Plugin } from "obsidian";
 import { VIEW_TYPE, FOLDER } from "./constants";
-import pluginView from "./views/pluginView";
+import PluginView from "./views/PluginView";
 import CineVaultSettingTab from "./settings/settingsTab";
 
 type CineVaultPluginData = {
@@ -25,7 +25,7 @@ export default class CineVaultPlugin extends Plugin {
 
 		this.registerView(
 			VIEW_TYPE,
-			(leaf) => new pluginView(leaf, this)
+			(leaf) => new PluginView(leaf, this)
 		);
 
 		this.addRibbonIcon("clapperboard", "BoxOffice", async () => {

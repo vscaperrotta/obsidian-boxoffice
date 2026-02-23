@@ -74,10 +74,10 @@ src/
 │   └── settingsTab.ts         # Settings UI tab
 ├── ui/                        # UI components, modals, suggestions
 └── views/
-    └── pluginView.ts          # Main view UI
+    └── PluginView.ts          # Main view UI
 ```
 
-**Version**: 1.0.1
+**Version**: 1.0.0
 **Minimum Obsidian Version**: 0.15.0
 
 If you want to support development: https://ko-fi.com/vittorioscaperrotta

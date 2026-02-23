@@ -1,8 +1,8 @@
 import { App, TFile } from "obsidian";
 import type { CineVaultData, CineVaultMovie } from "../types/cinevault";
-import { FOLDER, JSON_NAME } from "src/constants";
+import { FOLDER, NAME } from "src/constants";
 
-const DEFAULT_NAME = `${JSON_NAME}.json`;
+const DEFAULT_NAME = `${NAME}.json`;
 
 export function getDefaultPath(folder?: string) {
   const folderPath = folder ?? FOLDER;
@@ -15,7 +15,7 @@ export function getFolder(folder?: string) {
 
 export function createEmptyMovie(): CineVaultMovie {
   return {
-    id: crypto.randomUUID(),
+    id: Math.random().toString(36),
     imdbId: "",
     title: "",
     year: "",

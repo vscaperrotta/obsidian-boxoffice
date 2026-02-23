@@ -4,10 +4,10 @@ export function renderOnboarding(
   onLink?: () => void
 ) {
   const onboarding = container.createDiv({
-    cls: "obs-plugin-onboarding"
+    cls: "obs-plugin-boxoffice-boxoffice-onboarding"
   });
 
-  const actions = onboarding.createDiv({ cls: "obs-plugin-onboarding-actions" });
+  const actions = onboarding.createDiv({ cls: "obs-plugin-boxoffice-boxoffice-onboarding-actions" });
   const createButton = actions.createEl("button", { text: "Create new library" });
   createButton.addEventListener("click", onCreate);
 

@@ -1,5 +1,6 @@
 import { requestUrl } from "obsidian";
 import type { CineVaultSearchItem, OmdbDetailedResponse } from "../types/cinevault";
+import { OMDB_URL } from "src/constants";
 
 export async function searchOmdb(query: string, apiKey: string, type?: string, year?: string): Promise<CineVaultSearchItem[]> {
   if (!apiKey) {
@@ -7,7 +8,7 @@ export async function searchOmdb(query: string, apiKey: string, type?: string, y
   }
 
   try {
-    let url = `https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(query)}`;
+    let url = `${OMDB_URL}/?apikey=${apiKey}&s=${encodeURIComponent(query)}`;
     if (type) {
       url += `&type=${encodeURIComponent(type)}`;
     }
@@ -15,9 +16,14 @@ export async function searchOmdb(query: string, apiKey: string, type?: string, y
       url += `&y=${encodeURIComponent(year)}`;
     }
     const response = await requestUrl(url);
+
+    console.log(response)
+
     const data = response.json as {
-      Search?: Array<{ Title: string; Year: string; imdbID: string; Type: string; Poster: string }>;
+      Search?: Array<{ Title: string; Year: string; imdbID: string; Type: string; Poster: string; }>;
     };
+
+    console.log(data)
 
     if (data?.Search) {
       return data.Search.map((item) => ({
@@ -26,7 +32,6 @@ export async function searchOmdb(query: string, apiKey: string, type?: string, y
         year: item.Year,
         type: item.Type,
         poster: item.Poster && item.Poster !== "N/A" ? item.Poster : "",
-        plot: ""
       }));
     }
 
@@ -49,7 +54,7 @@ export async function getOmdbDetails(imdbId: string, apiKey: string, depth: numb
   }
 
   try {
-    const url = `https://www.omdbapi.com/?apikey=${apiKey}&i=${imdbId}&plot=full&tomatoes=true`;
+    const url = `${OMDB_URL}/?apikey=${apiKey}&i=${imdbId}&plot=full&tomatoes=true`;
     const response = await requestUrl(url);
 
     const data = response.json as OmdbDetailedResponse & { Response: string };

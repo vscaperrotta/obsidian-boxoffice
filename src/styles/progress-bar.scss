@@ -1,4 +1,4 @@
-.plugin-ratings-bar-container {
+.obs-plugin-boxoffice-bar-container {
   align-items: center;
   display: flex;
   gap: 12px;
@@ -6,7 +6,7 @@
   max-width: 200px;
 }
 
-.plugin-ratings-bar {
+.obs-plugin-boxoffice-bar {
   background-color: var(--color-base-25);
   height: 8px;
   border-radius: 2px;
@@ -14,7 +14,7 @@
   width: 100%;
 }
 
-.plugin-ratings-fill {
+.obs-plugin-boxoffice-fill {
   background-color: var(--color-yellow);
   height: 100%;
   border-radius: 2px;
@@ -23,7 +23,7 @@
   left: 0;
 }
 
-.plugin-ratings-average {
+.obs-plugin-boxoffice-average {
   font-size: 12px;
   font-weight: bold;
   color: var(--text-on-primary);

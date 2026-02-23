@@ -79,9 +79,9 @@ export function renderExternalRatingBar(parent: HTMLElement, ratings: MovieRatin
 }) {
   if (!ratings || ratings.length === 0) return null;
 
-  const ratingBarContainer = parent.createDiv({ cls: "plugin-ratings-bar-container" });
-  const ratingBar = ratingBarContainer.createDiv({ cls: "plugin-ratings-bar" });
-  const ratingFill = ratingBar.createDiv({ cls: "plugin-ratings-fill" });
+  const ratingBarContainer = parent.createDiv({ cls: "obs-plugin-boxoffice-bar-container" });
+  const ratingBar = ratingBarContainer.createDiv({ cls: "obs-plugin-boxoffice-bar" });
+  const ratingFill = ratingBar.createDiv({ cls: "obs-plugin-boxoffice-fill" });
 
   const values = ratings.map((r) => formatRating(r.Value));
   const average = averageRating(values);
@@ -91,7 +91,7 @@ export function renderExternalRatingBar(parent: HTMLElement, ratings: MovieRatin
 
   ratingBarContainer.createEl("span", {
     text: `${average}%`,
-    cls: "plugin-ratings-average"
+    cls: "obs-plugin-boxoffice-average"
   });
 
   return {

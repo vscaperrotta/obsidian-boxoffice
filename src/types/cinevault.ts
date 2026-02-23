@@ -65,7 +65,6 @@ export type CineVaultSearchItem = {
   year: string;
   type: string;
   poster: string;
-  plot: string;
 };
 
 export type OmdbDetailedResponse = {

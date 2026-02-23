@@ -14,9 +14,9 @@ import {
 } from "../services/libraryStorage";
 import { searchOmdb, getOmdbDetails } from "../services/omdbService";
 import { createStarRating } from "../ui/starRating";
-import { nullSafe, renderExternalRatingBar } from "src/utils/globalMethods";
+import { nullSafe, renderExternalRatingBar } from "src/utils/helpers";
 
-export default class CineVaultView extends ItemView {
+export default class PluginViewView extends ItemView {
 
   plugin: CineVaultPlugin;
   file: TFile | null = null;
@@ -53,15 +53,15 @@ export default class CineVaultView extends ItemView {
     const container = this.containerEl.children[1] as HTMLElement;
     container.empty();
 
-    const header = container.createDiv({ cls: "obs-plugin-header" });
+    const header = container.createDiv({ cls: "obs-plugin-boxoffice-header" });
     header.createEl("h1", {
       text: "BoxOffice",
-      cls: "obs-plugin-title"
+      cls: "obs-plugin-boxoffice-title"
     });
 
     header.createEl("p", {
       text: "This plugin allow you to manage your favorites movie and tv library into your vault.\nSearch OMDb, rate titles, and store your collection in a json file within your vault or in a separate vault.",
-      cls: "obs-plugin-header-text"
+      cls: "obs-plugin-boxoffice-header-text"
     });
 
     if (!this.data) {
@@ -83,21 +83,21 @@ export default class CineVaultView extends ItemView {
     }
 
     // Search area
-    const searchBox = container.createDiv({ cls: "obs-plugin-search" });
+    const searchBox = container.createDiv({ cls: "obs-plugin-boxoffice-search" });
 
-    const searchInputsGroup = searchBox.createDiv({ cls: "obs-plugin-search-inputs-group" });
+    const searchInputsGroup = searchBox.createDiv({ cls: "obs-plugin-boxoffice-search-inputs-group" });
 
     // Search title
-    const searchInputContainer = searchInputsGroup.createDiv({ cls: "obs-plugin-search-input-container" });
+    const searchInputContainer = searchInputsGroup.createDiv({ cls: "obs-plugin-boxoffice-search-input-container" });
     const searchInput = searchInputContainer.createEl("input", {
-      cls: "obs-plugin-search-input",
+      cls: "obs-plugin-boxoffice-search-input",
       attr: {
         placeholder: "Search"
       }
     });
 
     const filterSwitch = searchInputContainer.createEl("button", {
-      cls: "obs-plugin-search-clear",
+      cls: "obs-plugin-boxoffice-search-clear",
       attr: {
         "aria-label": "More filter",
         title: "More filter"
@@ -106,7 +106,7 @@ export default class CineVaultView extends ItemView {
 
     setIcon(filterSwitch, "sliders-horizontal");
 
-    const moreFilterContainer = searchInputsGroup.createDiv({ cls: "obs-plugin-more-filter" });
+    const moreFilterContainer = searchInputsGroup.createDiv({ cls: "obs-plugin-boxoffice-more-filter" });
 
     moreFilterContainer.style.display = "none";
 
@@ -120,12 +120,12 @@ export default class CineVaultView extends ItemView {
 
     // Year filter
     const yearInput = moreFilterContainer.createEl("input", {
-      cls: "obs-plugin-search-input",
+      cls: "obs-plugin-boxoffice-search-input",
       attr: { placeholder: "Year" }
     });
 
     // Type filter
-    const typeSelect = moreFilterContainer.createEl("select", { cls: "obs-plugin-search-select" });
+    const typeSelect = moreFilterContainer.createEl("select", { cls: "obs-plugin-boxoffice-search-select" });
     typeSelect.createEl("option", {
       text: "All",
       attr: {
@@ -144,7 +144,7 @@ export default class CineVaultView extends ItemView {
     // Container for search results, created on demand
     let resultsList: HTMLElement | null = null;
 
-    const content = container.createDiv({ cls: "obs-plugin-content" });
+    const content = container.createDiv({ cls: "obs-plugin-boxoffice-content" });
     this.moviesContainer = content;
 
     this.renderMovies(content);
@@ -158,14 +158,16 @@ export default class CineVaultView extends ItemView {
 
       const results = await searchOmdb(query, this.plugin.omdbApiKey, type, year);
 
+      console.log(results)
+
       if (!results || results.length === 0) {
-        if (!resultsList) resultsList = searchBox.createDiv({ cls: "obs-plugin-search-results" });
+        if (!resultsList) resultsList = searchBox.createDiv({ cls: "obs-plugin-boxoffice-search-results" });
         resultsList.empty();
-        resultsList.createEl("div", { text: "No results found.", cls: "obs-plugin-search-empty" });
+        resultsList.createEl("div", { text: "No results found.", cls: "obs-plugin-boxoffice-search-empty" });
         return;
       }
 
-      if (!resultsList) resultsList = searchBox.createDiv({ cls: "obs-plugin-search-results" });
+      if (!resultsList) resultsList = searchBox.createDiv({ cls: "obs-plugin-boxoffice-search-results" });
       await this.renderSearchResults(resultsList, results);
     };
 
@@ -209,28 +211,28 @@ export default class CineVaultView extends ItemView {
     const watched = this.data.movies.filter((movie) => movie.watched);
     const toWatch = this.data.movies.filter((movie) => !movie.watched);
 
-    const tabsContainer = container.createDiv({ cls: "obs-plugin-tabs-container" });
-    const tabHeader = tabsContainer.createDiv({ cls: "obs-plugin-tab-header" });
+    const tabsContainer = container.createDiv({ cls: "obs-plugin-boxoffice-tabs-container" });
+    const tabHeader = tabsContainer.createDiv({ cls: "obs-plugin-boxoffice-tab-header" });
 
-    const tabButtons = tabHeader.createDiv({ cls: "obs-plugin-tab-buttons" });
-    const viewToggle = tabHeader.createDiv({ cls: "obs-plugin-view-toggle" });
+    const tabButtons = tabHeader.createDiv({ cls: "obs-plugin-boxoffice-tab-buttons" });
+    const viewToggle = tabHeader.createDiv({ cls: "obs-plugin-boxoffice-view-toggle" });
 
     const toWatchButton = tabButtons.createEl("button", {
-      cls: "obs-plugin-tab-button",
+      cls: "obs-plugin-boxoffice-tab-button",
       text: `To Watch (${toWatch.length})`
     });
 
     const watchedButton = tabButtons.createEl("button", {
-      cls: "obs-plugin-tab-button",
+      cls: "obs-plugin-boxoffice-tab-button",
       text: `Watched (${watched.length})`
     });
 
     const gridButton = viewToggle.createEl("button", {
-      cls: "obs-plugin-view-button",
+      cls: "obs-plugin-boxoffice-view-button",
       attr: { "aria-label": "Grid view", title: "Grid view" }
     });
     const listButton = viewToggle.createEl("button", {
-      cls: "obs-plugin-view-button",
+      cls: "obs-plugin-boxoffice-view-button",
       attr: { "aria-label": "List view", title: "List view" }
     });
 
@@ -238,21 +240,52 @@ export default class CineVaultView extends ItemView {
     setIcon(listButton, "list");
 
     if (this.activeTab === "toWatch") {
-      toWatchButton.classList.add("obs-plugin-tab-button-active");
+      toWatchButton.classList.add("obs-plugin-boxoffice-tab-button-active");
     } else {
-      watchedButton.classList.add("obs-plugin-tab-button-active");
+      watchedButton.classList.add("obs-plugin-boxoffice-tab-button-active");
     }
 
     if (this.viewMode === "grid") {
-      gridButton.classList.add("obs-plugin-view-button-active");
+      gridButton.classList.add("obs-plugin-boxoffice-view-button-active");
     } else {
-      listButton.classList.add("obs-plugin-view-button-active");
+      listButton.classList.add("obs-plugin-boxoffice-view-button-active");
     }
 
-    const tabContent = tabsContainer.createDiv({ cls: "obs-plugin-tab-content" });
+    // Search internal to section (for future implementation, currently non-functional)
+    const searchInternalContainer = tabsContainer.createDiv({ cls: "obs-plugin-boxoffice-search" });
+    const searchInputsGroup = searchInternalContainer.createDiv({ cls: "obs-plugin-boxoffice-search-inputs-group" });
+    const searchInputContainer = searchInputsGroup.createDiv({ cls: "obs-plugin-boxoffice-search-input-container" });
+    const searchInput = searchInputContainer.createEl("input", {
+      cls: "obs-plugin-boxoffice-search-input",
+      attr: {
+        placeholder: "Internal search"
+      }
+    });
+
+    searchInput.addEventListener("input", () => {
+      const query = searchInput.value.trim().toLowerCase();
+      const filteredMovies = this.data?.movies ? this.data.movies.filter((movie) => {
+        if (this.activeTab === "toWatch" && !movie.watched) {
+          return movie.title.toLowerCase().includes(query)
+        }
+
+        if (this.activeTab === "watched" && movie.watched) {
+          return movie.title.toLowerCase().includes(query);
+        }
+
+        return false;
+      }) : [];
+
+      tabContent.empty();
+
+      this.renderMovieSection(tabContent, filteredMovies);
+      return;
+    });
+
+    // Initially render the active tab
+    const tabContent = tabsContainer.createDiv({ cls: "obs-plugin-boxoffice-tab-content" });
     const activeMovies = this.activeTab === "toWatch" ? toWatch : watched;
-    const activeTitle = this.activeTab === "toWatch" ? "To Watch" : "Watched";
-    this.renderMovieSection(tabContent, activeTitle, activeMovies);
+    this.renderMovieSection(tabContent, activeMovies);
 
     toWatchButton.addEventListener("click", () => {
       if (this.activeTab === "toWatch") return;
@@ -281,9 +314,8 @@ export default class CineVaultView extends ItemView {
     });
   }
 
-  private renderMovieSection(container: HTMLElement, title: string, movies: CineVaultMovie[]) {
-    const section = container.createDiv({ cls: "obs-plugin-section" });
-    // section.createEl("h3", { text: title });
+  private renderMovieSection(container: HTMLElement, movies: CineVaultMovie[]) {
+    const section = container.createDiv({ cls: "obs-plugin-boxoffice-section" });
 
     if (movies.length === 0) {
       section.createEl("p", { text: "No movies in this list." });
@@ -291,7 +323,7 @@ export default class CineVaultView extends ItemView {
     }
 
     const list = section.createDiv({
-      cls: this.viewMode === "grid" ? "obs-plugin-movie-grid" : "obs-plugin-movie-list"
+      cls: this.viewMode === "grid" ? "obs-plugin-boxoffice-movie-grid" : "obs-plugin-boxoffice-movie-list"
     });
 
     if (this.viewMode === "grid") {
@@ -303,9 +335,9 @@ export default class CineVaultView extends ItemView {
 
   private renderMovieGrid(container: HTMLElement, movies: CineVaultMovie[]) {
     movies.forEach((movie) => {
-      const card = container.createDiv({ cls: "obs-plugin-movie-card" });
-      card.createEl("img", { cls: "obs-plugin-movie-poster" }).setAttribute("src", movie.poster);
-      card.createEl("div", { text: movie.title, cls: "obs-plugin-movie-title" });
+      const card = container.createDiv({ cls: "obs-plugin-boxoffice-movie-card" });
+      card.createEl("img", { cls: "obs-plugin-boxoffice-movie-poster" }).setAttribute("src", movie.poster);
+      card.createEl("div", { text: movie.title, cls: "obs-plugin-boxoffice-movie-title" });
 
       // Build the details string conditionally, only including non-null/undefined values
       const detailsParts: string[] = [];
@@ -317,7 +349,7 @@ export default class CineVaultView extends ItemView {
 
       const detailsText = detailsParts.join(" - ");
       if (detailsText) {
-        card.createEl("div", { text: detailsText, cls: "obs-plugin-movie-year" });
+        card.createEl("div", { text: detailsText, cls: "obs-plugin-boxoffice-movie-year" });
       }
 
       if (movie.watched) {
@@ -335,20 +367,20 @@ export default class CineVaultView extends ItemView {
   private renderMovieList(container: HTMLElement, movies: CineVaultMovie[]) {
     movies.forEach((movie) => {
       const row = container.createDiv({
-        cls: "obs-plugin-movie-row"
+        cls: "obs-plugin-boxoffice-movie-row"
       });
       const poster = row.createEl("img", {
-        cls: "obs-plugin-movie-thumbnail"
+        cls: "obs-plugin-boxoffice-movie-thumbnail"
       });
       poster.setAttribute("src", movie.poster || "");
 
       const info = row.createDiv({
-        cls: "obs-plugin-movie-info"
+        cls: "obs-plugin-boxoffice-movie-info"
       });
 
       info.createEl("div", {
         text: movie.title,
-        cls: "obs-plugin-movie-title"
+        cls: "obs-plugin-boxoffice-movie-title"
       });
 
       // Build the details string conditionally, only including non-null/undefined values
@@ -368,7 +400,7 @@ export default class CineVaultView extends ItemView {
       if (detailsText) {
         info.createEl("div", {
           text: detailsText,
-          cls: "obs-plugin-movie-year"
+          cls: "obs-plugin-boxoffice-movie-year"
         });
       }
 
@@ -452,64 +484,68 @@ export default class CineVaultView extends ItemView {
     container.empty();
 
     results.forEach((result) => {
-      const item = container.createDiv({ cls: "obs-plugin-search-item" });
+      const item = container.createDiv({ cls: "obs-plugin-boxoffice-search-item" });
       if (result.poster) {
-        item.createEl("img", { cls: "obs-plugin-search-poster" }).setAttribute("src", result.poster);
+        item.createEl("img", { cls: "obs-plugin-boxoffice-search-poster" }).setAttribute("src", result.poster);
       }
-      const info = item.createDiv({ cls: "obs-plugin-search-info" });
-      info.createEl("div", { text: result.title, cls: "obs-plugin-search-title" });
-      info.createEl("div", { text: result.year, cls: "obs-plugin-search-year" });
+      const info = item.createDiv({ cls: "obs-plugin-boxoffice-search-info" });
+      info.createEl("div", { text: result.title, cls: "obs-plugin-boxoffice-search-title" });
+      info.createEl("div", { text: result.year, cls: "obs-plugin-boxoffice-search-year" });
 
       item.addEventListener("click", () => {
-        new CineVaultMovieActionModal(this.plugin.app, result, async (watched) => {
-          if (!this.data) return;
+        new CineVaultMovieActionModal(
+          this.plugin.app,
+          result,
+          async (watched) => {
+            if (!this.data) return;
 
-          const existing = this.data.movies.find((movie) => movie.imdbId === result.imdbId);
-          if (existing) {
-            existing.watched = watched;
-          } else {
-            new Notice(`Loading details for ${result.title}...`);
-            const details = await getOmdbDetails(result.imdbId, this.plugin.omdbApiKey);
+            const existing = this.data.movies.find((movie) => movie.imdbId === result.imdbId);
+            if (existing) {
+              existing.watched = watched;
+            } else {
+              new Notice(`Loading details for ${result.title}...`);
+              const details = await getOmdbDetails(result.imdbId, this.plugin.omdbApiKey);
 
-            if (!details) {
-              new Notice("Unable to load movie details.");
-              return;
+              if (!details) {
+                new Notice("Unable to load movie details.");
+                return;
+              }
+
+              const newMovie = createEmptyMovie();
+              newMovie.imdbId = details.imdbID || result.imdbId;
+              newMovie.title = details.Title || result.title;
+              newMovie.year = details.Year || result.year;
+              newMovie.rated = details.Rated || "";
+              newMovie.released = details.Released || "";
+              newMovie.runtime = details.Runtime || "";
+              newMovie.genre = details.Genre || "";
+              newMovie.director = details.Director || "";
+              newMovie.writer = details.Writer || "";
+              newMovie.actors = details.Actors || "";
+              newMovie.plot = details.Plot || result.plot;
+              newMovie.language = details.Language || "";
+              newMovie.country = details.Country || "";
+              newMovie.awards = details.Awards || "";
+              newMovie.poster = details.Poster && details.Poster !== "N/A" ? details.Poster : result.poster;
+              newMovie.posterLocal = "";
+              newMovie.ratings = details.Ratings || [];
+              newMovie.metascore = details.Metascore || "";
+              newMovie.imdbRating = details.imdbRating || "";
+              newMovie.imdbVotes = details.imdbVotes || "";
+              newMovie.type = details.Type || result.type;
+              newMovie.dvd = details.DVD || "";
+              newMovie.boxOffice = details.BoxOffice || "";
+              newMovie.production = details.Production || "";
+              newMovie.website = details.Website || "";
+              newMovie.totalSeasons = details.totalSeasons || "";
+              newMovie.watched = watched;
+
+              this.data.movies.unshift(newMovie);
             }
-
-            const newMovie = createEmptyMovie();
-            newMovie.imdbId = details.imdbID || result.imdbId;
-            newMovie.title = details.Title || result.title;
-            newMovie.year = details.Year || result.year;
-            newMovie.rated = details.Rated || "";
-            newMovie.released = details.Released || "";
-            newMovie.runtime = details.Runtime || "";
-            newMovie.genre = details.Genre || "";
-            newMovie.director = details.Director || "";
-            newMovie.writer = details.Writer || "";
-            newMovie.actors = details.Actors || "";
-            newMovie.plot = details.Plot || result.plot;
-            newMovie.language = details.Language || "";
-            newMovie.country = details.Country || "";
-            newMovie.awards = details.Awards || "";
-            newMovie.poster = details.Poster && details.Poster !== "N/A" ? details.Poster : result.poster;
-            newMovie.posterLocal = "";
-            newMovie.ratings = details.Ratings || [];
-            newMovie.metascore = details.Metascore || "";
-            newMovie.imdbRating = details.imdbRating || "";
-            newMovie.imdbVotes = details.imdbVotes || "";
-            newMovie.type = details.Type || result.type;
-            newMovie.dvd = details.DVD || "";
-            newMovie.boxOffice = details.BoxOffice || "";
-            newMovie.production = details.Production || "";
-            newMovie.website = details.Website || "";
-            newMovie.totalSeasons = details.totalSeasons || "";
-            newMovie.watched = watched;
-
-            this.data.movies.push(newMovie);
-          }
-          await this.saveData();
-          this.render();
-        }).open();
+            await this.saveData();
+            this.render();
+          })
+          .open();
       });
     });
   }
